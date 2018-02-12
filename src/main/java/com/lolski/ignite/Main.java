@@ -1,19 +1,14 @@
 package com.lolski.ignite;
 
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.Ignition;
-
-import java.util.Set;
-
 public class Main {
     public static void main(String[] args) {
         assertArgumentCorrect(args);
 
+        // TODO: use host port
         String host = args[1];
         int port = Integer.parseInt(args[2]);
 
-        DataGrid dataGrid = new DataGrid(host, port);
+        IgniteStorage igniteStorage = new IgniteStorage();
     }
 
     private static void assertArgumentCorrect(String[] args) {

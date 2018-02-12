@@ -2,17 +2,13 @@ package com.lolski.ignite;
 
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
-import org.apache.ignite.IgniteQueue;
 import org.apache.ignite.Ignition;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Set;
 
-public class DataGrid implements AutoCloseable {
+public class IgniteStorage implements AutoCloseable {
     public static final String KEYSPACE_TO_INDEX_CACHE_NAME = "grakn-queue-keyspace-to-index";
     public static final String KEYSPACE_AND_INDEX_TO_CONCEPT_IDS_CACHE_NAME = "grakn-queue-keyspace-and-index-to-concept-ids";
-    public final String host;
-    public final int port;
 
     private Ignite ignite = null;
 
@@ -20,9 +16,7 @@ public class DataGrid implements AutoCloseable {
 
     private IgniteCache<String, Set<String>> keyspaceAndIndex_ToConceptIdsMap = null;
 
-    public DataGrid(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public IgniteStorage() {
     }
 
     public void start() {
@@ -44,7 +38,6 @@ public class DataGrid implements AutoCloseable {
         keyspaceAndIndex_ToConceptIdsMap.put(getConceptIdsKey(keyspace, index), conceptIds);
     }
 
-    @Nullable
     public String popIndex(String keyspace) {
         // TODO: check is getAndRemove() atomic?
         String toBePopped = keyspaceToIndexMap.getAndRemove(keyspace);
