@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.*;
 
 public class DataGridTest {
     @Test
-    public void shouldPopAnElementProperly() {
+    public void shouldPopIndexProperly() {
         try (DataGrid dataGrid = new DataGrid("localhost", 6666)) {
             dataGrid.start();
 
@@ -23,14 +23,18 @@ public class DataGridTest {
         }
     }
 
-//    @Test
-    public void a() {
+    @Test
+    public void shouldPopIdsProperly() {
         try (DataGrid dataGrid = new DataGrid("localhost", 6666)) {
             dataGrid.start();
+
             Set<String> conceptIds = new HashSet<>(Arrays.asList("id1", "id2"));
             dataGrid.addIndex("keyspace", "attribute-name-value-adam", conceptIds);
-            Set<String> retrievedConceptIds = dataGrid.popIds("keyspace", "index1");
-            assertThat(retrievedConceptIds, equalTo(conceptIds));
+
+            Set<String> pop = dataGrid.popIds("keyspace", "attribute-name-value-adam");
+            Set<String> popAgain = dataGrid.popIds("keyspace", "attribute-name-value-adam");
+            assertThat(pop, equalTo(conceptIds));
+            assertThat(popAgain, nullValue());
         }
     }
 }

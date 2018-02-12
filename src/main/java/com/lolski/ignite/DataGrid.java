@@ -37,23 +37,26 @@ public class DataGrid implements AutoCloseable {
     }
 
     public void addIndex(String keyspace, String index, Set<String> conceptIds) {
-        put_keyspaceToIndexMap(keyspace, index);
+        // TODO:
+        // non atomic operations: keyspaceToIndexMap.put followed by keyspaceAndIndex_ToConceptIdsMap.put
+        // what is the implication?
+        keyspaceToIndexMap.put(keyspace, index);
+        keyspaceAndIndex_ToConceptIdsMap.put(getConceptIdsKey(keyspace, index), conceptIds);
     }
 
     @Nullable
     public String popIndex(String keyspace) {
-        // get and remove not atomic
+        // TODO: check is getAndRemove() atomic?
         String toBePopped = keyspaceToIndexMap.getAndRemove(keyspace);
         return toBePopped;
     }
 
     public Set<String> popIds(String keyspace, String index) {
-        keyspaceAndIndex_ToConceptIdsMap.get(keyspace);
+        Set<String> conceptIds = keyspaceAndIndex_ToConceptIdsMap.getAndRemove(getConceptIdsKey(keyspace, index));
+        return conceptIds;
     }
 
-    private void put_keyspaceToIndexMap(String keyspace, String index) {
-        keyspaceToIndexMap.put(keyspace, index);
+    static String getConceptIdsKey(String keyspace, String index){
+        return "IdsToPostProcess_" + keyspace + "_Id_" + index;
     }
-
-
 }
