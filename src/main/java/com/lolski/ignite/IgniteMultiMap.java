@@ -6,7 +6,11 @@ import org.apache.ignite.IgniteTransactions;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.transactions.Transaction;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.Optional;
 
 public class IgniteMultiMap {
     public final String NAME;

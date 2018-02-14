@@ -102,6 +102,26 @@ public class IgniteMultiMapTest {
         }
     }
 
+    @Test(expected = SetDoesNotExistException.class)
+    public void shouldPopAll_fromANonExistingKeyspaceCorrectly() {
+        try (Ignite ignite = Ignition.start()) {
+            IgniteMultiMap igniteMultiMap = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
+
+            igniteMultiMap.popAllTx(ignite.transactions(), "keyspace");
+        }
+    }
+
+    @Test
+    public void shouldPopAll_fromAnEmptyKeyspaceCorrectly() {
+        try (Ignite ignite = Ignition.start()) {
+            IgniteMultiMap igniteMultiMap = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
+            igniteMultiMap.putOneTx(ignite.transactions(), "keyspace", "1");
+            igniteMultiMap.popOneTx(ignite.transactions(), "keyspace");
+            igniteMultiMap.popAllTx(ignite.transactions(), "keyspace");
+            assertThat(igniteMultiMap.getAll("keyspace"), equalTo(new TreeSet<>(Arrays.asList())));
+        }
+    }
+
     @Test
     public void shouldGetAllKeysCorrectly() {
         try (Ignite ignite = Ignition.start()) {
