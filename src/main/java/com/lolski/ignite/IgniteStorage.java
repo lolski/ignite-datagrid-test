@@ -37,12 +37,12 @@ public class IgniteStorage implements AutoCloseable {
 
     public String popIndex(String keyspace) {
         // TODO: check is getAndRemove() atomic?
-        String toBePopped = keyspaceToIndices.popOne(ignite.transactions(), keyspace);
+        String toBePopped = keyspaceToIndices.popOneTx(ignite.transactions(), keyspace);
         return toBePopped;
     }
 
     public Set<String> popIds(String keyspace, String index) {
-        Set<String> toBePopped = keyspaceAndIndicesToConceptIds.popAll(ignite.transactions(), getConceptIdsKey(keyspace, index));
+        Set<String> toBePopped = keyspaceAndIndicesToConceptIds.popAllTx(ignite.transactions(), getConceptIdsKey(keyspace, index));
         return toBePopped;
     }
 

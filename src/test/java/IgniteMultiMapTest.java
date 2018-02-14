@@ -50,10 +50,10 @@ public class IgniteMultiMapTest {
         try (Ignite ignite = Ignition.start()) {
             IgniteMultiMap igniteMultiMap = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
 
-            // initialize with 2 element, and popOne one of them
+            // initialize with 2 element, and popOneTx one of them
             igniteMultiMap.putOneTx(ignite.transactions(), "keyspace", "1");
             igniteMultiMap.putOneTx(ignite.transactions(), "keyspace", "2");
-            String pop = igniteMultiMap.popOne(ignite.transactions(), "keyspace");
+            String pop = igniteMultiMap.popOneTx(ignite.transactions(), "keyspace");
 
             SortedSet<String> setWithoutThePoppedElement = new TreeSet<>(Arrays.asList("1", "2"));
             setWithoutThePoppedElement.remove(pop);
@@ -67,7 +67,7 @@ public class IgniteMultiMapTest {
         try (Ignite ignite = Ignition.start()) {
             IgniteMultiMap emptyIgniteMultiMapCollection = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
 
-            String pop = emptyIgniteMultiMapCollection.popOne(ignite.transactions(), "keyspace");
+            String pop = emptyIgniteMultiMapCollection.popOneTx(ignite.transactions(), "keyspace");
 
             SortedSet<String> setWithoutThePoppedElement = new TreeSet<>(Arrays.asList("1", "2"));
             setWithoutThePoppedElement.remove(pop);
@@ -78,14 +78,14 @@ public class IgniteMultiMapTest {
 
     @Test(expected = NoSuchElementException.class)
     public void shouldThrow_whenPoppingFromAnAlreadyEmptyCollection() {
-        // initialize with 1 element, and popOne twice
+        // initialize with 1 element, and popOneTx twice
         try (Ignite ignite = Ignition.start()) {
             IgniteMultiMap igniteMultiMap = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
 
             igniteMultiMap.putOneTx(ignite.transactions(), "keyspace", "1");
 
-            igniteMultiMap.popOne(ignite.transactions(), "keyspace");
-            igniteMultiMap.popOne(ignite.transactions(), "keyspace");
+            igniteMultiMap.popOneTx(ignite.transactions(), "keyspace");
+            igniteMultiMap.popOneTx(ignite.transactions(), "keyspace");
         }
     }
 
@@ -95,7 +95,7 @@ public class IgniteMultiMapTest {
             IgniteMultiMap igniteMultiMap = new IgniteMultiMap("a-random-cache-name").getOrCreate(ignite);
 
             igniteMultiMap.putAll("keyspace", new TreeSet<>(Arrays.asList("1", "2")));
-            Set<String> popAll = igniteMultiMap.popAll(ignite.transactions(), "keyspace");
+            Set<String> popAll = igniteMultiMap.popAllTx(ignite.transactions(), "keyspace");
 
             assertThat(igniteMultiMap.getAll("keyspace"), equalTo(new TreeSet<>()));
             assertThat(popAll, equalTo(new TreeSet<>(Arrays.asList("1", "2"))));

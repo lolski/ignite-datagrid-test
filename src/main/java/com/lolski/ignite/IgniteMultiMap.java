@@ -43,7 +43,7 @@ public class IgniteMultiMap {
         igniteCache.put(key, updatedIndices);
     }
 
-    public String popOne(IgniteTransactions t, String key) {
+    public String popOneTx(IgniteTransactions t, String key) {
         try (Transaction tx = t.txStart()) {
            Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, key);
            if (indicesOpt.isPresent()) {
@@ -57,7 +57,7 @@ public class IgniteMultiMap {
         }
     }
 
-    public Set<String> popAll(IgniteTransactions t, String setName) {
+    public Set<String> popAllTx(IgniteTransactions t, String setName) {
         try (Transaction tx = t.txStart()) {
             Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, setName);
             if (indicesOpt.isPresent()) {
