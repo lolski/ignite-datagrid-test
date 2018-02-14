@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class IgniteStorage implements AutoCloseable {
     private Ignite ignite = null;
-    private PushPopSortedSet keyspaceToIndices = new PushPopSortedSet("grakn-keyspace-to-indices");
-    private PushPopSortedSet keyspaceAndIndicesToConceptIds = new PushPopSortedSet("grakn-keyspace-and-indices-to-concept-ids");
+    private PushPopSet keyspaceToIndices = new PushPopSet("grakn-keyspace-to-indices");
+    private PushPopSet keyspaceAndIndicesToConceptIds = new PushPopSet("grakn-keyspace-and-indices-to-concept-ids");
 
     public IgniteStorage() {
     }

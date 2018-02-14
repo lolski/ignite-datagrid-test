@@ -11,16 +11,16 @@ import java.util.*;
 // a) a collection containing a keyspace with no indices to process, and
 // b) a collection containing no keyspace
 // Optional<?> getKeyspaceFromCache()
-public class PushPopSortedSet {
+public class PushPopSet {
     public final String NAME;
 
     private IgniteCache<String, SortedSet<String>> igniteCache = null;
 
-    public PushPopSortedSet(String name) {
+    public PushPopSet(String name) {
         this.NAME = name;
     }
 
-    public PushPopSortedSet getOrCreate(Ignite ignite) {
+    public PushPopSet getOrCreate(Ignite ignite) {
         igniteCache = ignite.getOrCreateCache(NAME);
         return this;
     }
@@ -51,7 +51,7 @@ public class PushPopSortedSet {
                tx.commit();
                return pop;
            } else {
-               throw new KeyspaceDoesNotExistInKeyspaceToIndicesException();
+               throw new SetDoesNotExistException();
            }
         }
     }
@@ -65,7 +65,7 @@ public class PushPopSortedSet {
                 tx.commit();
                 return getAll;
             } else {
-                throw new KeyspaceDoesNotExistInKeyspaceToIndicesException();
+                throw new SetDoesNotExistException();
             }
         }
     }
