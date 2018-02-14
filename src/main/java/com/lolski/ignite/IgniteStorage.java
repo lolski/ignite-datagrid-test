@@ -31,6 +31,7 @@ public class IgniteStorage implements AutoCloseable {
         try (Transaction tx = ignite.transactions().txStart()) {
             keyspaceToIndices.putOne(keyspace, index);
             keyspaceAndIndicesToConceptIds.putAll(getConceptIdsKey(keyspace, index), conceptIds);
+            tx.commit();
         }
     }
 
