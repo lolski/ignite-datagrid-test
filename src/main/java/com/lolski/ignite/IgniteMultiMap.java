@@ -12,16 +12,16 @@ import java.util.*;
 // a) a collection containing a keyspace with no indices to process, and
 // b) a collection containing no keyspace
 // Optional<?> getKeyspaceFromCache()
-public class IgniteSortedSetKV {
+public class IgniteMultiMap {
     public final String NAME;
 
     private IgniteCache<String, SortedSet<String>> igniteCache = null;
 
-    public IgniteSortedSetKV(String name) {
+    public IgniteMultiMap(String name) {
         this.NAME = name;
     }
 
-    public IgniteSortedSetKV getOrCreate(Ignite ignite) {
+    public IgniteMultiMap getOrCreate(Ignite ignite) {
         igniteCache = ignite.getOrCreateCache(NAME);
         return this;
     }

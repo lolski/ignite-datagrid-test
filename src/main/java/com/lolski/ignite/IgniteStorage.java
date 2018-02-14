@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class IgniteStorage implements AutoCloseable {
     private Ignite ignite = null;
-    private IgniteSortedSetKV keyspaceToIndices = new IgniteSortedSetKV("grakn-keyspace-to-indices");
-    private IgniteSortedSetKV keyspaceAndIndicesToConceptIds = new IgniteSortedSetKV("grakn-keyspace-and-indices-to-concept-ids");
+    private IgniteMultiMap keyspaceToIndices = new IgniteMultiMap("grakn-keyspace-to-indices");
+    private IgniteMultiMap keyspaceAndIndicesToConceptIds = new IgniteMultiMap("grakn-keyspace-and-indices-to-concept-ids");
 
     public IgniteStorage() {
     }
