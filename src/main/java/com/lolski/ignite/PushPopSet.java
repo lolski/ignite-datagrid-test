@@ -3,8 +3,12 @@ package com.lolski.ignite;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteTransactions;
+import org.apache.ignite.cache.query.QueryCursor;
+import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.transactions.Transaction;
+import sun.nio.cs.StandardCharsets;
 
+import javax.cache.Cache;
 import java.util.*;
 
 // TODO: differentiate between a mapping between
@@ -73,6 +77,12 @@ public class PushPopSet {
     public Set<String> getAll(String setName) {
         Set<String> all = igniteCache.get(setName);
         return all;
+    }
+
+    public Set<String> getKeys() {
+        Set<String> keys = new TreeSet<>();
+        igniteCache.query(new ScanQuery<>(null)).forEach(e -> keys.add((String) e.getKey()));
+        return keys;
     }
 
     private static Optional<SortedSet<String>> getKeyspaceFromCache(IgniteCache<String, SortedSet<String>> igniteCache, String setName) {

@@ -101,4 +101,18 @@ public class PushPopSetTest {
             assertThat(popAll, equalTo(new TreeSet<>(Arrays.asList("1", "2"))));
         }
     }
+
+    @Test
+    public void shouldGetAllKeysCorrectly() {
+        try (Ignite ignite = Ignition.start()) {
+            PushPopSet pushPopSet = new PushPopSet("a-random-cache-name").getOrCreate(ignite);
+
+            pushPopSet.putTx(ignite.transactions(), "keyspace1", "1");
+            pushPopSet.putTx(ignite.transactions(), "keyspace2", "1");
+            pushPopSet.putTx(ignite.transactions(), "keyspace3", "1");
+
+            assertThat(pushPopSet.getKeys(), equalTo(new TreeSet<>(Arrays.asList("keyspace1", "keyspace2", "keyspace3"))));
+        }
+
+    }
 }
