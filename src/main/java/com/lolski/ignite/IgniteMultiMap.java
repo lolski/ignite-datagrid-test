@@ -8,10 +8,6 @@ import org.apache.ignite.transactions.Transaction;
 
 import java.util.*;
 
-// TODO: differentiate between a mapping between
-// a) a collection containing a keyspace with no indices to process, and
-// b) a collection containing no keyspace
-// Optional<?> getKeyspaceFromCache()
 public class IgniteMultiMap {
     public final String NAME;
 
