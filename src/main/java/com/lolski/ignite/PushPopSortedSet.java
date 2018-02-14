@@ -5,10 +5,7 @@ import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteTransactions;
 import org.apache.ignite.transactions.Transaction;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 // TODO: differentiate between a mapping between
 // a) a collection containing a keyspace with no indices to process, and
@@ -28,13 +25,21 @@ public class PushPopSortedSet {
         return this;
     }
 
-    public void put(IgniteTransactions t, String setName, String element) {
+    public void putTx(IgniteTransactions t, String setName, String element) {
         try (Transaction tx = t.txStart()) {
-            SortedSet<String> updatedIndices = getKeyspaceFromCache(igniteCache, setName).orElse(new TreeSet<>());
-            updatedIndices.add(element);
-            igniteCache.put(setName, updatedIndices);
+            put(setName, element);
             tx.commit();
         }
+    }
+
+    public void put(String setName, String element) {
+        put(setName, new TreeSet<>(Arrays.asList(element)));
+    }
+
+    public void put(String setName, Set<String> element) {
+        SortedSet<String> updatedIndices = getKeyspaceFromCache(igniteCache, setName).orElse(new TreeSet<>());
+        updatedIndices.addAll(element);
+        igniteCache.put(setName, updatedIndices);
     }
 
     public String pop(IgniteTransactions t, String setName) {
@@ -48,6 +53,20 @@ public class PushPopSortedSet {
            } else {
                throw new KeyspaceDoesNotExistInKeyspaceToIndicesException();
            }
+        }
+    }
+
+    public Set<String> popAll(IgniteTransactions t, String setName) {
+        try (Transaction tx = t.txStart()) {
+            Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, setName);
+            if (indicesOpt.isPresent()) {
+                SortedSet<String> getAll = igniteCache.get(setName);
+                igniteCache.put(setName, new TreeSet<>());
+                tx.commit();
+                return getAll;
+            } else {
+                throw new KeyspaceDoesNotExistInKeyspaceToIndicesException();
+            }
         }
     }
 

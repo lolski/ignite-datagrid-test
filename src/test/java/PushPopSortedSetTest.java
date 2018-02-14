@@ -4,22 +4,30 @@ import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class PushPopSortedSetTest {
     @Test
-    public void shouldPutCorrectly() {
+    public void shouldDoPutTxCorrectly() {
         try (Ignite ignite = Ignition.start()) {
             PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
 
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "1");
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "2");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "1");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "2");
+
+            assertThat(pushPopSortedSet.getAll("keyspace"), equalTo(new TreeSet<>(Arrays.asList("1", "2"))));
+        }
+    }
+
+    @Test
+    public void shouldDoPutCorrectlyWhenGivenASetOfElements() {
+        try (Ignite ignite = Ignition.start()) {
+            PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
+
+            pushPopSortedSet.put("keyspace", new TreeSet<>(Arrays.asList("1", "2")));
 
             assertThat(pushPopSortedSet.getAll("keyspace"), equalTo(new TreeSet<>(Arrays.asList("1", "2"))));
         }
@@ -30,8 +38,8 @@ public class PushPopSortedSetTest {
         try (Ignite ignite = Ignition.start()) {
             PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
 
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "1");
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "1");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "1");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "1");
 
             assertThat(pushPopSortedSet.getAll("keyspace"), equalTo(new TreeSet<>(Arrays.asList("1"))));
         }
@@ -43,8 +51,8 @@ public class PushPopSortedSetTest {
             PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
 
             // initialize with 2 element, and pop one of them
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "1");
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "2");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "1");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "2");
             String pop = pushPopSortedSet.pop(ignite.transactions(), "keyspace");
 
             SortedSet<String> setWithoutThePoppedElement = new TreeSet<>(Arrays.asList("1", "2"));
@@ -74,10 +82,23 @@ public class PushPopSortedSetTest {
         try (Ignite ignite = Ignition.start()) {
             PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
 
-            pushPopSortedSet.put(ignite.transactions(), "keyspace", "1");
+            pushPopSortedSet.putTx(ignite.transactions(), "keyspace", "1");
 
             pushPopSortedSet.pop(ignite.transactions(), "keyspace");
             pushPopSortedSet.pop(ignite.transactions(), "keyspace");
+        }
+    }
+
+    @Test
+    public void shouldPopAll_fromNonEmptySetCorrectly() {
+        try (Ignite ignite = Ignition.start()) {
+            PushPopSortedSet pushPopSortedSet = new PushPopSortedSet("a-random-cache-name").getOrCreate(ignite);
+
+            pushPopSortedSet.put("keyspace", new TreeSet<>(Arrays.asList("1", "2")));
+            Set<String> popAll = pushPopSortedSet.popAll(ignite.transactions(), "keyspace");
+
+            assertThat(pushPopSortedSet.getAll("keyspace"), equalTo(new TreeSet<>()));
+            assertThat(popAll, equalTo(new TreeSet<>(Arrays.asList("1", "2"))));
         }
     }
 }
