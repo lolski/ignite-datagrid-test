@@ -8,8 +8,8 @@ import java.util.Set;
 
 public class IgniteStorage implements AutoCloseable {
     private Ignite ignite = null;
-    private PushPopSet keyspaceToIndices = new PushPopSet("grakn-keyspace-to-indices");
-    private PushPopSet keyspaceAndIndicesToConceptIds = new PushPopSet("grakn-keyspace-and-indices-to-concept-ids");
+    private IgniteSortedSetKV keyspaceToIndices = new IgniteSortedSetKV("grakn-keyspace-to-indices");
+    private IgniteSortedSetKV keyspaceAndIndicesToConceptIds = new IgniteSortedSetKV("grakn-keyspace-and-indices-to-concept-ids");
 
     public IgniteStorage() {
     }
@@ -26,17 +26,17 @@ public class IgniteStorage implements AutoCloseable {
 
     public void addIndex(String keyspace, String index, Set<String> conceptIds) {
         // TODO:
-        // non atomic operations: keyspaceToIndicesMap.putTx followed by keyspaceAndIndex_ToConceptIdsMap.putTx
+        // non atomic operations: keyspaceToIndicesMap.putOneTx followed by keyspaceAndIndex_ToConceptIdsMap.putOneTx
         // what is the implication?
         try (Transaction tx = ignite.transactions().txStart()) {
-            keyspaceToIndices.put(keyspace, index);
-            keyspaceAndIndicesToConceptIds.put(getConceptIdsKey(keyspace, index), conceptIds);
+            keyspaceToIndices.putOne(keyspace, index);
+            keyspaceAndIndicesToConceptIds.putAll(getConceptIdsKey(keyspace, index), conceptIds);
         }
     }
 
     public String popIndex(String keyspace) {
         // TODO: check is getAndRemove() atomic?
-        String toBePopped = keyspaceToIndices.pop(ignite.transactions(), keyspace);
+        String toBePopped = keyspaceToIndices.popOne(ignite.transactions(), keyspace);
         return toBePopped;
     }
 

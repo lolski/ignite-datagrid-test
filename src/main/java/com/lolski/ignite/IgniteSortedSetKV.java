@@ -3,55 +3,52 @@ package com.lolski.ignite;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteCache;
 import org.apache.ignite.IgniteTransactions;
-import org.apache.ignite.cache.query.QueryCursor;
 import org.apache.ignite.cache.query.ScanQuery;
 import org.apache.ignite.transactions.Transaction;
-import sun.nio.cs.StandardCharsets;
 
-import javax.cache.Cache;
 import java.util.*;
 
 // TODO: differentiate between a mapping between
 // a) a collection containing a keyspace with no indices to process, and
 // b) a collection containing no keyspace
 // Optional<?> getKeyspaceFromCache()
-public class PushPopSet {
+public class IgniteSortedSetKV {
     public final String NAME;
 
     private IgniteCache<String, SortedSet<String>> igniteCache = null;
 
-    public PushPopSet(String name) {
+    public IgniteSortedSetKV(String name) {
         this.NAME = name;
     }
 
-    public PushPopSet getOrCreate(Ignite ignite) {
+    public IgniteSortedSetKV getOrCreate(Ignite ignite) {
         igniteCache = ignite.getOrCreateCache(NAME);
         return this;
     }
 
-    public void putTx(IgniteTransactions t, String setName, String element) {
+    public void putOneTx(IgniteTransactions t, String key, String value) {
         try (Transaction tx = t.txStart()) {
-            put(setName, element);
+            putOne(key, value);
             tx.commit();
         }
     }
 
-    public void put(String setName, String element) {
-        put(setName, new TreeSet<>(Arrays.asList(element)));
+    public void putOne(String key, String value) {
+        putAll(key, new TreeSet<>(Arrays.asList(value)));
     }
 
-    public void put(String setName, Set<String> element) {
-        SortedSet<String> updatedIndices = getKeyspaceFromCache(igniteCache, setName).orElse(new TreeSet<>());
-        updatedIndices.addAll(element);
-        igniteCache.put(setName, updatedIndices);
+    public void putAll(String key, Set<String> values) {
+        SortedSet<String> updatedIndices = getKeyspaceFromCache(igniteCache, key).orElse(new TreeSet<>());
+        updatedIndices.addAll(values);
+        igniteCache.put(key, updatedIndices);
     }
 
-    public String pop(IgniteTransactions t, String setName) {
+    public String popOne(IgniteTransactions t, String key) {
         try (Transaction tx = t.txStart()) {
-           Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, setName);
+           Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, key);
            if (indicesOpt.isPresent()) {
                String pop = popAndGetFirstElement(indicesOpt.get());
-               igniteCache.put(setName, indicesOpt.get());
+               igniteCache.put(key, indicesOpt.get());
                tx.commit();
                return pop;
            } else {
