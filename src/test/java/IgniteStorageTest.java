@@ -8,7 +8,7 @@ import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class IgniteStorageTest {
-    @Test
+//    @Test
     public void shouldPopIndexProperly() {
         try (IgniteStorage igniteStorage = new IgniteStorage()) {
             igniteStorage.start();
@@ -23,7 +23,7 @@ public class IgniteStorageTest {
         }
     }
 
-    @Test
+//    @Test
     public void shouldPopIdsProperly() {
         try (IgniteStorage igniteStorage = new IgniteStorage()) {
             igniteStorage.start();
