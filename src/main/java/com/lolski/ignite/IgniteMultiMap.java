@@ -62,7 +62,7 @@ public class IgniteMultiMap {
             Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, setName);
             if (indicesOpt.isPresent()) {
                 SortedSet<String> getAll = igniteCache.get(setName);
-                igniteCache.put(setName, new TreeSet<>());
+                igniteCache.remove(setName);
                 tx.commit();
                 return getAll;
             } else {
