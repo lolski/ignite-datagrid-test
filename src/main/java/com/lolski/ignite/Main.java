@@ -7,13 +7,13 @@ public class Main {
         // TODO: use host port
         String host = args[1];
         int port = Integer.parseInt(args[2]);
-
-        IgniteStorage igniteStorage = new IgniteStorage();
+        IgniteCluster cluster = new IgniteCluster(port).start();
+        IgniteMultiMap map = new IgniteMultiMap("test").getOrCreate(cluster.ignite);
     }
 
     private static void assertArgumentCorrect(String[] args) {
         String help = "Usage: <program> <host> <port> (port must be a number)";
-        if (args.length != 3) {
+        if (args.length != 2) {
             System.err.println(help);
             System.exit(1);
         }
