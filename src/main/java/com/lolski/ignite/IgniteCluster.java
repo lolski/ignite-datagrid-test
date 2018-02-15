@@ -9,13 +9,13 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import java.util.Arrays;
 
 public class IgniteCluster {
-    public final int PORT;
+//    public final int PORT;
     public IgniteConfiguration igniteConfiguration;
     public Ignite ignite;
 
-    public IgniteCluster(int port) {
-        this.PORT = port;
-        this.igniteConfiguration = new IgniteConfiguration().setDiscoverySpi(getTcpDiscoverySpi("localhost:"+PORT));
+    public IgniteCluster(String localAddress, String... seeds) {
+//        this.PORT = port;
+        this.igniteConfiguration = new IgniteConfiguration().setDiscoverySpi(getTcpDiscoverySpi(localAddress, seeds));
     }
 
     public IgniteCluster start() {
@@ -23,10 +23,11 @@ public class IgniteCluster {
         return this;
     }
 
-    private TcpDiscoverySpi getTcpDiscoverySpi(String... addresses) {
+    private TcpDiscoverySpi getTcpDiscoverySpi(String localAddress, String... seeds) {
         TcpDiscoverySpi spi = new TcpDiscoverySpi();
         TcpDiscoveryVmIpFinder ipFinder = new TcpDiscoveryVmIpFinder();
-        ipFinder.setAddresses(Arrays.asList(addresses));
+        ipFinder.setAddresses(Arrays.asList(seeds));
+        spi.setLocalAddress(localAddress);
         spi.setIpFinder(ipFinder);
         return spi;
     }
