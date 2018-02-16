@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -15,6 +16,11 @@ public class Main {
 
         IgniteCluster cluster = new IgniteCluster(new DiscoverySettings(localAddress, seeds), new PersistenceSettings(storagePath)).start();
         IgniteMultiMap map = new IgniteMultiMap("test").getOrCreate(cluster.ignite);
+
+        RestEndpoints.setupRestEndpoints(
+                () -> map.getKeys().stream().collect(Collectors.joining(", ")),
+                value -> map.putOneTx(cluster.ignite.transactions(), localAddress, value),
+                key -> map.getAll(key).stream().collect(Collectors.joining(", ")));
     }
 
     private static Map.Entry<String, List<String>> getLocalNodeAndSeeds(String[] args) {
@@ -38,4 +44,3 @@ public class Main {
         return dir;
     }
 }
-
