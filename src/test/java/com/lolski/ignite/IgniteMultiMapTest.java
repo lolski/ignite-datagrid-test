@@ -1,18 +1,12 @@
 package com.lolski.ignite;
 
-import com.lolski.ignite.IgniteFactory;
-import com.lolski.ignite.SetDoesNotExistException;
-import com.lolski.ignite.IgniteMultiMap;
 import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.Ignition;
 import org.junit.Test;
 
 import java.util.*;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static com.lolski.ignite.IgniteTestHelpers.*;
 
 public class IgniteMultiMapTest {
     @Test

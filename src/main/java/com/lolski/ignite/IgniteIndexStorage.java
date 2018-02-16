@@ -1,15 +1,10 @@
 package com.lolski.ignite;
 
 import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.transactions.Transaction;
 
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.SortedSet;
 
 public class IgniteIndexStorage implements AutoCloseable {
     private Ignite ignite;
