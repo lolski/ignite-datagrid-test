@@ -1,11 +1,12 @@
 package com.lolski.ignite;
 
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.CacheMode;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -16,12 +17,16 @@ public class Main {
         String[] seeds = getLocalNodeAndSeeds(discovery).getValue().toArray(new String[] {});
         Path storagePath = attemptCreateDir(Paths.get("./db/ignite"));
 
-        IgniteCluster cluster = new IgniteCluster(new DiscoverySettings(localAddress, seeds), new PersistenceSettings(storagePath)).start();
-        IgniteMultiMap map = new IgniteMultiMap("test").getOrCreate(cluster.ignite);
+        Ignite cluster = IgniteFactory.createIgniteClusterMode(
+                new DiscoverySettings(localAddress, seeds), new PersistenceSettings(storagePath));
+        IgniteCache<String, SortedSet<String>> cache =
+                IgniteFactory.createIgniteCache(cluster,"test", 0, CacheMode.REPLICATED);
+
+        IgniteMultiMap map = new IgniteMultiMap(cache);
 
         RestEndpoints.setupRestEndpoints(port,
                 () -> map.getKeys().stream().collect(Collectors.joining(", ")),
-                value -> map.putOneTx(cluster.ignite.transactions(), localAddress, value),
+                value -> map.putOneTx(cluster.transactions(), localAddress, value),
                 key -> map.getAll(key).stream().collect(Collectors.joining(", ")));
     }
 

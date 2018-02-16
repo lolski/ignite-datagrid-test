@@ -17,17 +17,11 @@ import java.util.TreeSet;
 import java.util.Optional;
 
 public class IgniteMultiMap {
-    public final String NAME;
 
-    private IgniteCache<String, SortedSet<String>> igniteCache = null;
+    private final IgniteCache<String, SortedSet<String>> igniteCache;
 
-    public IgniteMultiMap(String name) {
-        this.NAME = name;
-    }
-
-    public IgniteMultiMap getOrCreate(Ignite ignite) {
-        igniteCache = ignite.getOrCreateCache(getCacheConfiguration(NAME, 0, CacheMode.REPLICATED));
-        return this;
+    public IgniteMultiMap(IgniteCache<String, SortedSet<String>> igniteCache) {
+        this.igniteCache = igniteCache;
     }
 
     public void putOneTx(IgniteTransactions t, String key, String value) {
@@ -52,7 +46,11 @@ public class IgniteMultiMap {
            Optional<SortedSet<String>> indicesOpt = getKeyspaceFromCache(igniteCache, key);
            if (indicesOpt.isPresent()) {
                String pop = popAndGetFirstElement(indicesOpt.get());
-               igniteCache.put(key, indicesOpt.get());
+               if (indicesOpt.get().size() > 0) {
+                   igniteCache.put(key, indicesOpt.get());
+               } else {
+                   igniteCache.remove(key);
+               }
                tx.commit();
                return pop;
            } else {
@@ -94,13 +92,6 @@ public class IgniteMultiMap {
         String pop = elements.first();
         elements.remove(pop);
         return pop;
-    }
-
-    private CacheConfiguration getCacheConfiguration(String name, int backup, CacheMode cacheMode) {
-        return new CacheConfiguration<>()
-                .setName(name)
-                .setBackups(backup)
-                .setCacheMode(cacheMode);
     }
 }
 

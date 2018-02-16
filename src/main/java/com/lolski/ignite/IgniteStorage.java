@@ -1,22 +1,28 @@
 package com.lolski.ignite;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheMode;
 import org.apache.ignite.transactions.Transaction;
 
 import java.util.Set;
+import java.util.SortedSet;
 
 public class IgniteStorage implements AutoCloseable {
     private Ignite ignite = null;
-    private IgniteMultiMap keyspaceToIndices = new IgniteMultiMap("grakn-keyspace-to-indices");
-    private IgniteMultiMap keyspaceAndIndicesToConceptIds = new IgniteMultiMap("grakn-keyspace-and-indices-to-concept-ids");
+    private IgniteMultiMap keyspaceToIndices = null;
+    private IgniteMultiMap keyspaceAndIndicesToConceptIds = null;
 
     public IgniteStorage() {
     }
 
-    public void start() {
-        ignite = Ignition.start();
-        keyspaceToIndices.getOrCreate(ignite);
+    public void start(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
+        ignite = IgniteFactory.createIgniteClusterMode(discoverySettings, persistenceSettings);
+        keyspaceToIndices = new IgniteMultiMap(IgniteFactory.createIgniteCache(
+                ignite, "a", 0, CacheMode.REPLICATED));
+        keyspaceAndIndicesToConceptIds = new IgniteMultiMap(IgniteFactory.createIgniteCache(
+                ignite, "b", 0, CacheMode.REPLICATED));
     }
 
     @Override

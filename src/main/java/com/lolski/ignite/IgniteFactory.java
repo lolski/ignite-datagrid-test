@@ -1,7 +1,10 @@
 package com.lolski.ignite;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
 import org.apache.ignite.Ignition;
+import org.apache.ignite.cache.CacheMode;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
@@ -12,21 +15,27 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-public class IgniteCluster {
-    public IgniteConfiguration igniteConfiguration;
-    public Ignite ignite;
-
-    public IgniteCluster(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
-        this.igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(discoverySettings.localAddress),
+public class IgniteFactory {
+    public static Ignite createIgniteClusterMode(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
+        IgniteConfiguration igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(discoverySettings.localAddress),
                 getTcpDiscoverySpi(discoverySettings.localAddress, discoverySettings.seeds),
                 getDurableDataStorageConfiguration(persistenceSettings.location));
+        Ignite ignite = Ignition.start(igniteConfiguration);
+        ignite.active(true);
+        return ignite;
     }
 
-    public IgniteCluster start() {
-        ignite = Ignition.start(igniteConfiguration);
-        ignite.active(true);
-        return this;
+    public static <K, V> IgniteCache<K, V> createIgniteCache(Ignite ignite, String name, int backup, CacheMode cacheMode) {
+        return ignite.getOrCreateCache(getCacheConfiguration(name, backup, cacheMode));
     }
+
+    private static <K, V> CacheConfiguration<K, V> getCacheConfiguration(String name, int backup, CacheMode cacheMode) {
+        return new CacheConfiguration<K, V>()
+                .setName(name)
+                .setBackups(backup)
+                .setCacheMode(cacheMode);
+    }
+
 
     public static IgniteConfiguration getIgniteConfiguration(TcpCommunicationSpi tcpCommunicationSpi, TcpDiscoverySpi tcpDiscoverySpi, DataStorageConfiguration dataStorageConfiguration) {
         return new IgniteConfiguration()
