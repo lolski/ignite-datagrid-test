@@ -12,6 +12,7 @@
             <includes>
                 <include>ignite</include>
             </includes>
+            <fileMode>0755</fileMode>
         </fileSet>
     </fileSets>
     <dependencySets>
