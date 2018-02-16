@@ -11,12 +11,12 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 
-public class IgniteStorage implements AutoCloseable {
+public class IgniteIndexStorage implements AutoCloseable {
     private Ignite ignite;
     private IgniteMultiMap keyspaceToIndices;
     private IgniteMultiMap keyspaceAndIndicesToConceptIds;
 
-    public IgniteStorage(Ignite ignite, IgniteMultiMap keyspaceToIndices, IgniteMultiMap keyspaceAndIndicesToConceptIds) {
+    public IgniteIndexStorage(Ignite ignite, IgniteMultiMap keyspaceToIndices, IgniteMultiMap keyspaceAndIndicesToConceptIds) {
         this.ignite = ignite;
         this.keyspaceToIndices = keyspaceToIndices;
         this.keyspaceAndIndicesToConceptIds = keyspaceAndIndicesToConceptIds;

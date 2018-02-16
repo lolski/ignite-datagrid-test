@@ -17,12 +17,12 @@ import java.util.Arrays;
 import java.util.SortedSet;
 
 public class IgniteFactory {
-    public static IgniteStorage createIgniteStorage(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
+    public static IgniteIndexStorage createIgniteStorage(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
         Ignite ignite = createIgniteClusterMode(discoverySettings, persistenceSettings);
         IgniteCache<String, SortedSet<String>> a = createIgniteCache(ignite, "a", 0, CacheMode.REPLICATED);
         IgniteCache<String, SortedSet<String>> b = createIgniteCache(ignite, "b", 0, CacheMode.REPLICATED);
 
-        return new IgniteStorage(createIgniteClusterMode(discoverySettings, persistenceSettings),
+        return new IgniteIndexStorage(createIgniteClusterMode(discoverySettings, persistenceSettings),
                 new IgniteMultiMap(a), new IgniteMultiMap(b));
     }
 
