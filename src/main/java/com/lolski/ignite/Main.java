@@ -10,14 +10,16 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        String localAddress = getLocalNodeAndSeeds(args).getKey();
-        String[] seeds = getLocalNodeAndSeeds(args).getValue().toArray(new String[] {});
+        int port = Integer.parseInt(args[0]);
+        String discovery[] = Arrays.copyOfRange(args, 1, args.length);
+        String localAddress = getLocalNodeAndSeeds(discovery).getKey();
+        String[] seeds = getLocalNodeAndSeeds(discovery).getValue().toArray(new String[] {});
         Path storagePath = attemptCreateDir(Paths.get("./db/ignite"));
 
         IgniteCluster cluster = new IgniteCluster(new DiscoverySettings(localAddress, seeds), new PersistenceSettings(storagePath)).start();
         IgniteMultiMap map = new IgniteMultiMap("test").getOrCreate(cluster.ignite);
 
-        RestEndpoints.setupRestEndpoints(
+        RestEndpoints.setupRestEndpoints(port,
                 () -> map.getKeys().stream().collect(Collectors.joining(", ")),
                 value -> map.putOneTx(cluster.ignite.transactions(), localAddress, value),
                 key -> map.getAll(key).stream().collect(Collectors.joining(", ")));

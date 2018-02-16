@@ -5,10 +5,13 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static spark.Spark.get;
+import static spark.Spark.port;
 import static spark.Spark.post;
 
 public class RestEndpoints {
-    public static void setupRestEndpoints(Supplier<String> onGetKeys, Consumer<String> onPut, Function<String, String> onGetKey) {
+    public static void setupRestEndpoints(int portNumber, Supplier<String> onGetKeys, Consumer<String> onPut, Function<String, String> onGetKey) {
+        port(portNumber);
+
         get("/keys", (req, res) -> onGetKeys.get());
 
         post("/add", (req, res) -> {
