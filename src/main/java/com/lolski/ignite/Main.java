@@ -11,11 +11,9 @@ public class Main {
         String[] seeds = getLocalNodeAndSeeds(args).getValue().toArray(new String[] {});
 
         IgniteCluster cluster = new IgniteCluster(localAddress, seeds).start();
-//        System.out.println("====");
-//        cluster.ignite.cluster().localNode().addresses().forEach(System.out::println);
-//        System.out.println("====");
-        cluster.ignite.active(true);
+
         IgniteMultiMap map = new IgniteMultiMap("test").getOrCreate(cluster.ignite);
+
         map.putOneTx(cluster.ignite.transactions(), "key", Long.toString(System.currentTimeMillis()));
         map.getAll("key").forEach(System.out::println);
     }

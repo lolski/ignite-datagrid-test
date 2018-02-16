@@ -19,11 +19,12 @@ public class IgniteCluster {
     public IgniteCluster(String localAddress, String... seeds) {
 //        this.PORT = port;
         this.igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(localAddress),
-                getTcpDiscoverySpi(seeds), getDurableDataStorageConfiguration());
+                getTcpDiscoverySpi(localAddress, seeds), getDurableDataStorageConfiguration());
     }
 
     public IgniteCluster start() {
         ignite = Ignition.start(igniteConfiguration);
+        ignite.active(true);
         return this;
     }
 
@@ -43,30 +44,21 @@ public class IgniteCluster {
     }
 
     public static TcpCommunicationSpi getTcpCommunicationSpi(String localAddress) {
-        String[] hostAndPort = localAddress.split(":");
-        return new TcpCommunicationSpi()
-                .setLocalAddress(hostAndPort[0])
-                .setLocalPort(Integer.parseInt(hostAndPort[1]));
+        return new TcpCommunicationSpi();
     }
 
-    public static TcpDiscoverySpi getTcpDiscoverySpi(String... seeds) {
+    public static TcpDiscoverySpi getTcpDiscoverySpi(String localAddress, String... seeds) {
         TcpDiscoveryVmIpFinder ipFinder =
                 new TcpDiscoveryVmIpFinder()
                 .setShared(true)
                 .setAddresses(Arrays.asList(seeds));
+
+        String[] hostAndPort = localAddress.split(":");
         TcpDiscoverySpi spi = new TcpDiscoverySpi()
-            .setIpFinder(ipFinder);
+                .setLocalAddress(hostAndPort[0])
+                .setLocalPort(Integer.parseInt(hostAndPort[1]))
+                .setIpFinder(ipFinder);
+
         return spi;
     }
 }
-
-
-//// listen to localhost:5555
-//Ignition.start(new IgniteConfiguration()
-//        .setCommunicationSpi(new TcpCommunicationSpi().setLocalAddress("localhost").setLocalPort(5555))
-//        .setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(new TcpDiscoveryVmIpFinder().setShared(true).setAddresses(Arrays.asList()))));
-//
-//// listen to localhost:5556, form a cluster with localhost:5555
-//        Ignition.start(new IgniteConfiguration()
-//        .setCommunicationSpi(new TcpCommunicationSpi().setLocalAddress("localhost").setLocalPort(5556))
-//        .setDiscoverySpi(new TcpDiscoverySpi().setIpFinder(new TcpDiscoveryVmIpFinder().setShared(true).setAddresses(Arrays.asList("localhost:5555")))));
