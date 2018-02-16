@@ -9,17 +9,17 @@ import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class IgniteCluster {
-//    public final int PORT;
     public IgniteConfiguration igniteConfiguration;
     public Ignite ignite;
 
-    public IgniteCluster(String localAddress, String... seeds) {
-//        this.PORT = port;
-        this.igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(localAddress),
-                getTcpDiscoverySpi(localAddress, seeds), getDurableDataStorageConfiguration());
+    public IgniteCluster(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
+        this.igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(discoverySettings.localAddress),
+                getTcpDiscoverySpi(discoverySettings.localAddress, discoverySettings.seeds),
+                getDurableDataStorageConfiguration(persistenceSettings.location));
     }
 
     public IgniteCluster start() {
@@ -35,8 +35,9 @@ public class IgniteCluster {
                 .setDataStorageConfiguration(dataStorageConfiguration);
     }
 
-    public static DataStorageConfiguration getDurableDataStorageConfiguration() {
-        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration();
+    public static DataStorageConfiguration getDurableDataStorageConfiguration(Path location) {
+        DataStorageConfiguration dataStorageConfiguration = new DataStorageConfiguration()
+                .setStoragePath(location.toAbsolutePath().toString());
         DataRegionConfiguration dataRegionConfiguration = dataStorageConfiguration
                 .getDefaultDataRegionConfiguration().setPersistenceEnabled(true);
 
@@ -62,3 +63,4 @@ public class IgniteCluster {
         return spi;
     }
 }
+
