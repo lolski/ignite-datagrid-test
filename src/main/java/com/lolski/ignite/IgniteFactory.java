@@ -14,8 +14,18 @@ import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.SortedSet;
 
 public class IgniteFactory {
+    public static IgniteStorage createIgniteStorage(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
+        Ignite ignite = createIgniteClusterMode(discoverySettings, persistenceSettings);
+        IgniteCache<String, SortedSet<String>> a = createIgniteCache(ignite, "a", 0, CacheMode.REPLICATED);
+        IgniteCache<String, SortedSet<String>> b = createIgniteCache(ignite, "b", 0, CacheMode.REPLICATED);
+
+        return new IgniteStorage(createIgniteClusterMode(discoverySettings, persistenceSettings),
+                new IgniteMultiMap(a), new IgniteMultiMap(b));
+    }
+
     public static Ignite createIgniteClusterMode(DiscoverySettings discoverySettings, PersistenceSettings persistenceSettings) {
         IgniteConfiguration igniteConfiguration = getIgniteConfiguration(getTcpCommunicationSpi(discoverySettings.localAddress),
                 getTcpDiscoverySpi(discoverySettings.localAddress, discoverySettings.seeds),
