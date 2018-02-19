@@ -18,8 +18,11 @@ public class IgniteTestHelpers {
         return Ignition.start();
     }
 
-    public static IgniteCache<String, SortedSet<String>> getCache(Ignite ignite, String name) {
+    public static IgniteCache<String, SortedSet<String>> getCacheMultiMap(Ignite ignite, String name) {
         return ignite.getOrCreateCache(name);
     }
 
+    public static IgniteCache<String, Long> getCacheMapOfLong(Ignite ignite, String name) {
+        return ignite.getOrCreateCache(name);
+    }
 }
